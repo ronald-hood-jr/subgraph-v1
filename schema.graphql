@@ -1,0 +1,622 @@
+######################################################### ICHIVaultFactory
+type IchiVault @entity {
+  id: ID! # the address of the ichi vault
+  sender: Bytes! # the address of the signer of the transaction, usually the gnosis vault
+  tokenA: Bytes! # the address of the token contract that is token0 in the vault
+  allowTokenA: Boolean! # determines if the liquidity provision is one-side or two-sided.
+  tokenB: Bytes! # the address of the token contract tat is token1 in the vault
+  allowTokenB: Boolean! # determines if the liquidity provision is one-side or two-sided.
+  count: BigInt! # the number of vaults that have been created to date
+  fee: BigInt! # the fee as a percentage of the uniswap swap fees to be distributed to feeRecipient and affiliate accounts
+  createdAtTimestamp: BigInt! # the timestamp at which the vault was created
+}
+
+######################################################### Vault
+type VaultAffiliate @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the vault in which the affiliate was set
+  sender: Bytes! # the address of the signer of the transaction
+  affiliate: Bytes! # the address of the new affiliate that will receive a split of the trading fees
+}
+
+type VaultApproval @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the vault in which the approval occurred
+  owner: Bytes! # the address of the owner of the spender account
+  spender: Bytes! # the address for which the allowance is being set
+  value: BigInt! # the new allowance
+}
+
+type DeployICHIVault @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: ID! # the address of the vault that was deployed
+  sender: Bytes! # the address of the signer, usually the ICHIVaultFactory
+  pool: Bytes! # the address of the UniswapV3 pool that contains the assets in the vault
+  allowToken0: Boolean! # determines if the liquidity provision is one-side or two-sided.
+  allowToken1: Boolean! # determines if the liquidity provision is one-side or two-sided.
+  owner: Bytes! # the owner of the ichi vault
+  twapPeriod: BigInt! # the average time period
+}
+
+type VaultDeposit @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the pool in which the deposit occurred
+  sender: Bytes! # the signer of the deposit transaction
+  to: Bytes! # the address to which liquidity pool tokens are minted
+  shares: BigInt! # the quantity of liquidity tokens minted as a result of deposit
+  amount0: BigInt! # the amount of token0 to be deposited
+  amount1: BigInt! # the amount of token1 to be deposited
+  createdAtTimestamp: BigInt! # the timestamp at which the deposit occurred
+  sqrtPrice: BigInt! # The sqrtPrice at that moment in the pool that corresponds to the vault
+  totalAmount0: BigInt! # the total amount of token0 in the vault after the event has occurred
+  totalAmount1: BigInt! # the total amount of token1 in the vault after the event has occurred
+  totalAmount0BeforeEvent: BigInt! # the total amount of token0 in the vault before the event has occurred
+  totalAmount1BeforeEvent: BigInt! # the total amount of token1 in the vault before the event has occurred
+}
+
+type VaultDepositMax @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the pool in which the DepositMax was set
+  sender: Bytes! # the address of the signer of the transaction that set the depoist max
+  deposit0Max: BigInt! # the depositMax amount of token0
+  deposit1Max: BigInt! # the depositMax amount of token1
+}
+
+type VaultHysteresis @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the pool in which the hysteresis was set
+  sender: Bytes! # the address of the signer of the transaction
+  hysteresis: BigInt! # the new hysteresis threshold in percentage
+}
+
+type MaxTotalSupply @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the vault in which the MaxTotalSupply was set
+  sender: Bytes! # the address of signer of the transaction
+  maxTotalSupply: BigInt! # the amount that is set as the maxTotalSupply
+}
+
+type VaultOwnershipTransferred @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the vault in which the ownership has been transferred
+  previousOwner: Bytes! # the address of the previous owner
+  newOwner: Bytes! # the address of the new owner
+}
+
+type VaultRebalance @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the vault in which the rebalance has occurred
+  tick: Int! # the current price tick
+  totalAmount0: BigInt! # the total amount of token0 in the vault
+  totalAmount1: BigInt! # the total amount of token1 in the vault
+  feeAmount0: BigInt! # the fees for token0
+  feeAmount1: BigInt! # the fees for token1
+  totalSupply: BigInt! # the total supply of the liquidity pool token that is used by the vault
+}
+
+type VaultSetTwapPeriod @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the vault in which the twap period has been set
+  sender: Bytes! # the address that was the signer of the transaction
+  newTwapPeriod: BigInt! # the new twap period of the vault
+}
+
+type VaultTransfer @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the vault in which the transfer has occurred
+  from: Bytes! # the address that is the sender of the token
+  to: Bytes! # the address that is the recipient of the transfer
+  value: BigInt! # the amount of the token that is transferred.
+}
+
+type VaultWithdraw @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  vault: Bytes! # the address of the vault in which the transfer has occurred
+  sender: Bytes! # the signer of the transaction in which the withdraw occurred
+  to: Bytes! # the address to which the liquidity tokens are minted
+  shares: BigInt! # the quantity of liquidity tokens minted as a result of a withdraw
+  amount0: BigInt! # the amount of token0 that is being withdrawn
+  amount1: BigInt! # the amount of token1 that is being withdrawn
+  createdAtTimestamp: BigInt! # the timestamp at which the withdraw occurred
+  sqrtPrice: BigInt! # the sqrt price of the pool that the vault is deployed in at the time of the event
+  totalAmount0: BigInt! # the total amount of token0 in the vault after the event
+  totalAmount1: BigInt! # the total amount of token1 in the vault after the event
+  totalAmount0BeforeEvent: BigInt! # the total amount of token0 in the vault after the event
+  totalAmount1BeforeEvent: BigInt! # the total amount of token1 in the vault after the event
+}
+
+######################################################### Farm
+type FarmAccount @entity { # every user of the farm will have a separate accounts for each of the different farms that they use
+  id: ID! # the address of the user and the pool id separated by a hyphen
+  pid: BigInt! # the pool id of the farm
+  user: FarmUser! # the user to which this account belongs
+  accountLPBalance: BigInt! # the amount of LP token staked in this pool of the farm by this user
+}
+
+type FarmUser @entity {
+  id: ID! # the address of the user that has interacted with the farm
+  accounts: [FarmAccount!]! @derivedFrom(field: "user") # an array of accounts that represent current or previous postiions inside of the farm
+}
+
+type FarmDeposit @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  user: Bytes! # the user that submitted the deposit
+  pid: BigInt! # the pid in which this deposit occurred
+  amount: BigInt! # the amount that was deposited
+  to: Bytes! # the address that receives the deposit benefit
+  timeStamp: BigInt! # the timestamp at which the event occurred
+}
+
+type FarmEmergencyWithdraw @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  user: Bytes! # the user that signed the transaction
+  pid: BigInt! # the pid of the farm in which the event occurred
+  amount: BigInt! # the amount that was emergency withdrawn
+  to: Bytes! # the address to which the withdrawn tokens
+  timeStamp: BigInt! # the timestamp at which the event occurred
+}
+
+type Farm @entity {
+  id: ID! # the pid of the farm
+  lpToken: Bytes! # the address of the lp token of the farm
+  rewardTokensPerBlock: BigInt! # the reward tokens per block of the farm
+  totalAllocPoints: BigInt! # the total alloc points of the farm
+  farmLPSupply: BigInt! # the total number of LP tokens staked in the farm
+  totalLPSupply: BigInt! # the total supply of LP tokens in existence
+  accIchiPerShare: BigInt! # the accumulated ichi per share of the farm
+  lastRewardBlock: BigInt! # the last reward block of the farm
+  allocPoint: BigInt! # the alloc point of the farm
+  poolIchiReward: BigInt! # the pool Ichi reward of the farm
+  ichiPerBlock: BigInt! # the ichi per block of the farm
+  lpTokenSymbol: String! # the symbol of the lp token in the farm
+  lpTokenDecimals: BigInt! # the decimals of the lp token in the farm
+}
+
+type FarmHarvest @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  user: Bytes! # the user that signed the event transaction
+  pid: BigInt! # the pid of the farm in which the event occurred
+  amount: BigInt! # the amount of the harvest
+  timeStamp: BigInt! # the timestamp in which the event occurred
+}
+
+type FarmWithdraw @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  user: Bytes! # the address of the user that signed the event transaction
+  pid: BigInt! # the pid of the farm in which the withdraw occurred
+  amount: BigInt! # the amount of the lp token that is withdrawn
+  to: Bytes! # the address that is to receive the withdrawn token
+  timeStamp: BigInt! # the timestamp at which the withdraw event occurred
+}
+
+type FarmLogPoolAddition @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  pid: BigInt! # the pid of the farm in which the event occured
+  allocPoint: BigInt! # the alloc point of the pool that has been added
+  lpToken: Bytes! # the address of the lp token
+}
+
+type FarmLogSetPool @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  pid: BigInt! # the pid of the farm in which the event occurred
+  allocPoint: BigInt! # the alloc point of the pool that has been changed
+}
+
+type FarmLogUpdatePool @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  pid: BigInt! # the pid of the farm in which the event occurred
+  lastRewardBlock: BigInt! # the last reward block
+  lpSupply: BigInt! # the supply of LP tokens in the farm
+  accIchiPerShare: BigInt! #  the accIchiPerShare of the farm
+}
+
+type FarmOwnershipTransferred @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  previousOwner: Bytes! # the address of the previous owner of the farm
+  newOwner: Bytes! # the address of the new owner of the farm
+}
+
+type FarmSetIchiPerBlock @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  ichiPerBlock: BigInt! # the amount of the ichiPerBlock
+  withUpdate: Boolean! # true if massUpdatePools should be triggered as well
+}
+
+######################################################### OneTokenFactory
+
+type OneTokenFactoryAddOracle @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the signer of the transaction in which this event occurred
+  foreignToken: Bytes! # a foreign token can be a collateral token, member token or other, e.g. LP token
+  oracle: Bytes! # the address of the usd oracle
+}
+
+type OneTokenFactoryForeignTokenAdmitted @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address that signs the transaction
+  foreignToken: Bytes! # the address of the foreign token to be added to the inventory
+  isCollateral: Boolean! # collateral set true if the asset is considered a collateral token
+  oracle: Bytes! # the address of the usd oracle
+}
+
+type OneTokenFactoryForeignTokenRemoved @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which this event occurred
+  foreignToken: Bytes! # the address of the foreign token that is to be removed from the registry
+}
+
+type OneTokenFactoryForeignTokenUpdated @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the signer of the transaction in which the event occurred
+  foreignToken: Bytes! # the address of the foreign token that will have its metadata updated
+  isCollateral: Boolean! # collateral set true if the asset is considered a collateral token
+}
+
+type OneTokenFactoryModuleAdmitted @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the signer of the transaction in which this event occurred
+  module: Bytes! # the address of the module to be admitted
+  moduleType: Int! # the type number of the module type
+  name: String! # descriptive module information
+  url: String! # optionally point to human-readable operational description
+}
+
+type OneTokenFactoryModuleRemoved @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes!  # the signer of the transaction in which this event occurred
+  module: Bytes! # the address of the module to be admitted
+}
+
+type OneTokenFactoryModuleUpdated @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the signer of the transaction in which this event occurred
+  module: Bytes! # the address of the module to be admitted
+  name: String! # descriptive module information
+  url: String! # optionally point to human-readable operational description
+}
+
+type OneTokenFactoryOneTokenAdmin @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the signer of the transaction in which this event occurred
+  newOneTokenProxy: Bytes! # the address of the one token proxy
+  proxyAdmin: Bytes! # the address of the proxyAdmin
+}
+
+type OneTokenFactoryOneTokenDeployed @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the signer of the transaction in which this event occurred
+  newOneTokenProxy: Bytes! # the address of the one token proxy
+  name: String! # ERC20 token name
+  symbol: String! # ERC20 token symbol
+  governance: Bytes! # address that will control admin functions in the oneToken instance
+  version: Bytes! # address of a oneToken deployed implementation that emits the expected fingerprint
+  controller: Bytes! # deployed controller must be registered
+  mintMaster: Bytes! # deployed mintMaster must be registered
+  oneTokenOracle: Bytes! # deployed oracle must be registered and will be used to check the oneToken peg
+  memberToken: Bytes! # deployed ERC20 contract must be registered with at least one associated oracle
+  collateral: Bytes! # deployed ERC20 contract must be registered with at least one associated oracle
+}
+
+type OneTokenFactoryOwnershipTransferred @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  previousOwner: Bytes! # the address of the previous owner
+  newOwner: Bytes! # the address of the new owner
+}
+
+type OneTokenFactoryRemoveOracle @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  foreignToken: Bytes! # the address of the foreign token
+  oracle: Bytes! # the address of the usd oracle
+}
+
+######################################################### oneToken
+
+type OneTokenAdminChanged @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  previousAdmin: Bytes! # the address of the previous admin
+  newAdmin: Bytes! # the address of the new admin
+}
+
+type OneTokenUpgraded @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  implementation: Bytes! # the address of the new implementation
+}
+
+type OneTokenApproval @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  owner: Bytes! # the owner that is approving the allowance
+  spender: Bytes! # the spender whose allowance has been approved
+  value: BigInt! # the new allowance
+}
+
+type OneTokenAssetAdded @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  token: Bytes! # the address of the token
+  oracle: Bytes! # the address of the oracle
+}
+
+type OneTokenAssetRemoved @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  token: Bytes! # the address of the token
+}
+
+type OneTokenControllerChanged @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  controller: Bytes! # the address of the controller
+}
+
+type OneTokenFromStrategy @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  strategy: Bytes! # the address of the strategy
+  token: Bytes! # the address of the token
+  amount: BigInt! # the amount
+}
+
+type OneTokenInitialized @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  name: String! # the name of the token to be initialized
+  symbol: String! # the symbol of the token to be initialized
+  controller: Bytes! # the address of the controller
+  mintMaster: Bytes! # the address of the mintMaster
+  memberToken: Bytes! # the address of the memberToken
+  collateral: Bytes! # the address of the collateral
+}
+
+type OneTokenMintMasterChanged @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  mintMaster: Bytes! # the address of the mint master
+  oneTokenOracle: Bytes! # the address of the oneTokenOracle
+}
+
+type OneTokenMinted @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  collateral: Bytes! # the addres of the collateral
+  oneTokens: BigInt! # the address of the oneTokens
+  memberTokens: BigInt! # the amount of the memberTokens
+  collateralTokens: BigInt! # the amount of the collateralTokens
+}
+
+type OneTokenNewFactory @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  factory: Bytes! # the address of the new one token factory
+}
+
+type OneTokenNewMintingFee @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  fee: BigInt! # the new minting fee amount
+}
+
+type OneTokenNewRedemptionFee @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event transferred
+  fee: BigInt! # the new redemptive minting fee amount
+}
+
+type OneTokenOwnershipTransferred @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  previousOwner: Bytes! # the address of the previousOwner
+  newOwner: Bytes! # the address of the newOwner
+}
+
+type OneTokenRedeemed @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  collateral: Bytes! # the address of the collateral that is utilzied in the redemption
+  amount: BigInt! # the amount of the redeemed oneToken
+}
+
+type OneTokenStrategyAllowanceDecreased @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  token: Bytes! # the address of the token
+  strategy: Bytes! # the address of the strategy
+  amount: BigInt! # the amount of the token
+}
+
+type OneTokenStrategyAllowanceIncreased @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes!  # the address of the signer of the transaction in which the event occurred
+  token: Bytes! # the address of the token
+  strategy: Bytes! # the address of the strategy
+  amount: BigInt! # the amount of the token
+}
+
+type OneTokenStrategyClosed @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  token: Bytes! # the address of the token
+  strategy: Bytes! # the address of the strategy
+}
+
+type OneTokenStrategyExecuted @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  token: Bytes! # the address of the token
+  strategy: Bytes! # the address of the strategy
+}
+
+type OneTokenStrategyRemoved @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  token: Bytes! # the address of the token
+  strategy: Bytes! # the address of the strategy
+}
+
+type OneTokenStrategySet @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  token: Bytes! # the address of the token
+  strategy: Bytes! # the address of the strategy
+  allowance: BigInt! # the amount of the allowance
+}
+
+type OneTokenToStrategy @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  sender: Bytes! # the address of the signer of the transaction in which the event occurred
+  strategy: Bytes! # the address of the strategy
+  token: Bytes! # the address of the token
+  amount: BigInt! # the amount to be transferred
+}
+
+type OneTokenTransfer @entity {
+  id: ID! # the transaction hash and the log index separated by a hyphen
+  from: Bytes! # the address from which the transferred tokens are sent
+  to: Bytes! # the address that receives the tokens that are transferred
+  value: BigInt! # the value that is to be transferred
+}
+
+type IchiRariAccrueInterest @entity {
+  id: ID!
+  cashPrior: BigInt! # uint256
+  interestAccumulated: BigInt! # uint256
+  borrowIndex: BigInt! # uint256
+  totalBorrows: BigInt! # uint256
+}
+
+type IchiRariApproval @entity {
+  id: ID!
+  owner: Bytes! # address
+  spender: Bytes! # address
+  amount: BigInt! # uint256
+}
+
+type IchiRariBorrow @entity {
+  id: ID!
+  borrower: Bytes! # address
+  borrowAmount: BigInt! # uint256
+  accountBorrows: BigInt! # uint256
+  totalBorrows: BigInt! # uint256
+}
+
+type IchiRariFailure @entity {
+  id: ID!
+  error: BigInt! # uint256
+  info: BigInt! # uint256
+  detail: BigInt! # uint256
+}
+
+type IchiRariLiquidateBorrow @entity {
+  id: ID!
+  liquidator: Bytes! # address
+  borrower: Bytes! # address
+  repayAmount: BigInt! # uint256
+  cTokenCollateral: Bytes! # address
+  seizeTokens: BigInt! # uint256
+}
+
+type IchiRariMint @entity {
+  id: ID!
+  minter: Bytes! # address
+  mintAmount: BigInt! # uint256
+  mintTokens: BigInt! # uint256
+}
+
+type IchiRariNewAdminFee @entity {
+  id: ID!
+  oldAdminFeeMantissa: BigInt! # uint256
+  newAdminFeeMantissa: BigInt! # uint256
+}
+
+type IchiRariNewComptroller @entity {
+  id: ID!
+  oldComptroller: Bytes! # address
+  newComptroller: Bytes! # address
+}
+
+type IchiRariNewFuseFee @entity {
+  id: ID!
+  oldFuseFeeMantissa: BigInt! # uint256
+  newFuseFeeMantissa: BigInt! # uint256
+}
+
+type IchiRariNewImplementation @entity {
+  id: ID!
+  oldImplementation: Bytes! # address
+  newImplementation: Bytes! # address
+}
+
+type IchiRariNewMarketInterestRateModel @entity {
+  id: ID!
+  oldInterestRateModel: Bytes! # address
+  newInterestRateModel: Bytes! # address
+}
+
+type IchiRariNewReserveFactor @entity {
+  id: ID!
+  oldReserveFactorMantissa: BigInt! # uint256
+  newReserveFactorMantissa: BigInt! # uint256
+}
+
+type IchiRariRedeem @entity {
+  id: ID!
+  redeemer: Bytes! # address
+  redeemAmount: BigInt! # uint256
+  redeemTokens: BigInt! # uint256
+}
+
+type IchiRariRepayBorrow @entity {
+  id: ID!
+  payer: Bytes! # address
+  borrower: Bytes! # address
+  repayAmount: BigInt! # uint256
+  accountBorrows: BigInt! # uint256
+  totalBorrows: BigInt! # uint256
+}
+
+type IchiRariReservesAdded @entity {
+  id: ID!
+  benefactor: Bytes! # address
+  addAmount: BigInt! # uint256
+  newTotalReserves: BigInt! # uint256
+}
+
+type IchiRariReservesReduced @entity {
+  id: ID!
+  admin: Bytes! # address
+  reduceAmount: BigInt! # uint256
+  newTotalReserves: BigInt! # uint256
+}
+
+type IchiRariTransfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  amount: BigInt! # uint256
+}
+
+type IchiRariSupplyThresholdReached @entity {
+  id: ID!
+  currentRatio: String!
+  supplyIchi: String!
+  supplyCap: String!
+  timeStamp: BigInt!
+}
+
+type xICHIApproval @entity {
+  id: ID!
+  owner: Bytes! # address
+  spender: Bytes! # address
+  value: BigInt! # uint256
+}
+
+type xICHITransfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
+  ichiAmount: BigInt!
+  xICHIAmount: BigInt!
+  delta: BigDecimal!
+  timeStamp: BigInt!
+}
+

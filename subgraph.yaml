@@ -1,0 +1,357 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ICHIVaultFactory
+    network: mainnet
+    source:
+      address: "0x5a40DFaF8C1115196A1CDF529F97122030F26112"
+      abi: ICHIVaultFactory
+      startBlock: 13671606
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/vaultFactory.ts
+      entities:
+        - IchiVault
+      abis:
+        - name: ICHIVaultFactory
+          file: ./abis/ICHIVaultFactory.json
+      eventHandlers:
+        - event: ICHIVaultCreated(indexed address,address,address,bool,address,bool,uint24,uint256)
+          handler: handleICHIVaultCreated
+  - kind: ethereum/contract
+    name: IchiFarmV2
+    network: mainnet
+    source:
+      address: "0x275dFE03bc036257Cd0a713EE819Dbd4529739c8"
+      abi: ichiFarmV2
+      startBlock: 12156276
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/farmV2.ts
+      entities:
+        - Deposit
+        - EmergencyWithdraw
+        - Farm
+        - Harvest
+        - LogPoolAddition
+        - LogSetPool
+        - LogUpdatePool
+        - OwnershipTransferred
+        - Pool
+        - SetIchiPerBlock
+        - Account
+        - Withdraw
+      abis:
+        - name: ichiFarmV2
+          file: ./abis/ichiFarmV2.json
+        - name: erc20
+          file: ./abis/erc20.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleDeposit
+        - event: EmergencyWithdraw(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleEmergencyWithdraw
+        - event: Harvest(indexed address,indexed uint256,uint256)
+          handler: handleHarvest
+        - event: LogPoolAddition(indexed uint256,uint256,indexed address)
+          handler: handleLogPoolAddition
+        - event: LogSetPool(indexed uint256,uint256)
+          handler: handleLogSetPool
+        - event: LogUpdatePool(indexed uint256,uint64,uint256,uint256)
+          handler: handleLogUpdatePool
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SetIchiPerBlock(uint256,bool)
+          handler: handleSetIchiPerBlock
+        - event: Withdraw(indexed address,indexed uint256,uint256,indexed address)
+          handler: handleWithdraw
+  - kind: ethereum
+    name: OneTokenFactory
+    network: mainnet
+    source:
+      address: "0xD0092632B9Ac5A7856664eeC1abb6E3403a6A36a"
+      abi: OneTokenFactory
+      startBlock: 12505188
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/OneTokenFactory.ts
+      entities:
+        - OneTokenFactoryAddOracle
+        - OneTokenFactoryForeignTokenAdmitted
+        - OneTokenFactoryForeignTokenRemoved
+        - OneTokenFactoryForeignTokenUpdated
+        - OneTokenFactoryModuleAdmitted
+        - OneTokenFactoryModuleRemoved
+        - OneTokenFactoryModuleUpdated
+        - OneTokenFactoryOneTokenAdmin
+        - OneTokenFactoryOneTokenDeployed
+        - OneTokenFactoryOwnershipTransferred
+        - OneTokenFactoryRemoveOracle
+      abis:
+        - name: OneTokenFactory
+          file: ./abis/OneTokenFactory.json
+      eventHandlers:
+        - event: AddOracle(address,address,address)
+          handler: handleAddOracle
+        - event: ForeignTokenAdmitted(address,address,bool,address)
+          handler: handleForeignTokenAdmitted
+        - event: ForeignTokenRemoved(address,address)
+          handler: handleForeignTokenRemoved
+        - event: ForeignTokenUpdated(address,address,bool)
+          handler: handleForeignTokenUpdated
+        - event: ModuleAdmitted(address,address,uint8,string,string)
+          handler: handleModuleAdmitted
+        - event: ModuleRemoved(address,address)
+          handler: handleModuleRemoved
+        - event: ModuleUpdated(address,address,string,string)
+          handler: handleModuleUpdated
+        - event: OneTokenAdmin(address,address,address)
+          handler: handleOneTokenAdmin
+        - event: OneTokenDeployed(address,address,string,string,address,address,address,address,address,address,address)
+          handler: handleOneTokenDeployed
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: RemoveOracle(address,address,address)
+          handler: handleRemoveOracle
+  - kind: ethereum
+    name: IchiRariPool136
+    network: mainnet
+    source:
+      address: "0xaFf95ac1b0A78Bd8E4f1a2933E373c66CC89C0Ce"
+      abi: IchiPool
+      startBlock: 13796016
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - IchiRariAccrueInterest
+        - IchiRariApproval
+        - IchiRariBorrow
+        - IchiRariFailure
+        - IchiRariLiquidateBorrow
+        - IchiRariMint
+        - IchiRariNewAdminFee
+        - IchiRariNewComptroller
+        - IchiRariNewFuseFee
+        - IchiRariNewImplementation
+        - IchiRariNewMarketInterestRateModel
+        - IchiRariNewReserveFactor
+        - IchiRariRedeem
+        - IchiRariRepayBorrow
+        - IchiRariReservesAdded
+        - IchiRariReservesReduced
+        - IchiRariTransfer
+        - IchiRariSupplyThresholdReached
+      abis:
+        - name: IchiPool
+          file: ./abis/IchiPool.json
+        - name: Comptroller
+          file: ./abis/Comptroller.json
+      eventHandlers:
+        - event: AccrueInterest(uint256,uint256,uint256,uint256)
+          handler: handleAccrueInterest
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Borrow(address,uint256,uint256,uint256)
+          handler: handleBorrow
+        - event: Failure(uint256,uint256,uint256)
+          handler: handleFailure
+        - event: LiquidateBorrow(address,address,uint256,address,uint256)
+          handler: handleLiquidateBorrow
+        - event: Mint(address,uint256,uint256)
+          handler: handleMint
+        - event: NewAdminFee(uint256,uint256)
+          handler: handleNewAdminFee
+        - event: NewComptroller(address,address)
+          handler: handleNewComptroller
+        - event: NewFuseFee(uint256,uint256)
+          handler: handleNewFuseFee
+        - event: NewImplementation(address,address)
+          handler: handleNewImplementation
+        - event: NewMarketInterestRateModel(address,address)
+          handler: handleNewMarketInterestRateModel
+        - event: NewReserveFactor(uint256,uint256)
+          handler: handleNewReserveFactor
+        - event: Redeem(address,uint256,uint256)
+          handler: handleRedeem
+        - event: RepayBorrow(address,address,uint256,uint256,uint256)
+          handler: handleRepayBorrow
+        - event: ReservesAdded(address,uint256,uint256)
+          handler: handleReservesAdded
+        - event: ReservesReduced(address,uint256,uint256)
+          handler: handleReservesReduced
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/ichiRari.ts
+  - kind: ethereum
+    name: xICHI
+    network: mainnet
+    source:
+      address: "0x70605a6457B0A8fBf1EEE896911895296eAB467E"
+      abi: xICHI
+      startBlock: 11251041
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - xICHIApproval
+        - xICHITransfer
+      abis:
+        - name: xICHI
+          file: ./abis/xICHI.json
+        - name: erc20
+          file: ./abis/erc20.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/xICHI.ts
+templates:
+  - name: Vault
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: ICHIVault
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/vaults.ts
+      entities:
+        - Affiliate
+        - Approval
+        - DeployICHIVault
+        - Deposit
+        - DepositMax
+        - Hysteresis
+        - MaxTotalSupply
+        - OwnershipTransferred
+        - Rebalance
+        - SetTwapPeriod
+        - Transfer
+        - Withdraw
+      abis:
+        - name: ICHIVault
+          file: ./abis/ICHIVault.json
+        - name: UniswapV3Pool
+          file: ./abis/UniswapV3Pool.json
+      eventHandlers:
+        - event: Affiliate(indexed address,address)
+          handler: handleAffiliate
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: DeployICHIVault(indexed address,indexed address,bool,bool,address,uint256)
+          handler: handleDeployICHIVault
+        - event: Deposit(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleDeposit
+        - event: DepositMax(indexed address,uint256,uint256)
+          handler: handleDepositMax
+        - event: Hysteresis(indexed address,uint256)
+          handler: handleHysteresis
+        - event: MaxTotalSupply(indexed address,uint256)
+          handler: handleMaxTotalSupply
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Rebalance(int24,uint256,uint256,uint256,uint256,uint256)
+          handler: handleRebalance
+        - event: SetTwapPeriod(address,uint32)
+          handler: handleSetTwapPeriod
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Withdraw(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleWithdraw
+  - name: oneToken
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: oneToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/oneToken.ts
+      entities:
+        - Approval
+        - AssetAdded
+        - AssetRemoved
+        - ControllerChanged
+        - FromStrategy
+        - Initialized
+        - MintMasterChanged
+        - Minted
+        - NewFactory
+        - NewMintingFee
+        - NewRedemptionFee
+        - OwnershipTransferred
+        - Redeemed
+        - StrategyAllowanceDecreased
+        - StrategyAllowanceIncreased
+        - StrategyClosed
+        - StrategyExecuted
+        - StrategyRemoved
+        - StrategySet
+        - ToStrategy
+        - Transfer
+        - AdminChanged
+        - Upgraded
+      abis:
+        - name: oneToken
+          file: ./abis/oneToken.json
+      eventHandlers:
+        - event: AdminChanged(address,address)
+          handler: handleAdminChanged
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: AssetAdded(address,address,address)
+          handler: handleAssetAdded
+        - event: AssetRemoved(address,address)
+          handler: handleAssetRemoved
+        - event: ControllerChanged(address,address)
+          handler: handleControllerChanged
+        - event: FromStrategy(address,address,address,uint256)
+          handler: handleFromStrategy
+        - event: Initialized(address,string,string,address,address,address,address)
+          handler: handleInitialized
+        - event: MintMasterChanged(address,address,address)
+          handler: handleMintMasterChanged
+        - event: Minted(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleMinted
+        - event: NewFactory(address,address)
+          handler: handleNewFactory
+        - event: NewMintingFee(address,uint256)
+          handler: handleNewMintingFee
+        - event: NewRedemptionFee(address,uint256)
+          handler: handleNewRedemptionFee
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Redeemed(indexed address,indexed address,uint256)
+          handler: handleRedeemed
+        - event: StrategyAllowanceDecreased(address,address,address,uint256)
+          handler: handleStrategyAllowanceDecreased
+        - event: StrategyAllowanceIncreased(address,address,address,uint256)
+          handler: handleStrategyAllowanceIncreased
+        - event: StrategyClosed(address,address,address)
+          handler: handleStrategyClosed
+        - event: StrategyExecuted(indexed address,indexed address,indexed address)
+          handler: handleStrategyExecuted
+        - event: StrategyRemoved(address,address,address)
+          handler: handleStrategyRemoved
+        - event: StrategySet(address,address,address,uint256)
+          handler: handleStrategySet
+        - event: ToStrategy(address,address,address,uint256)
+          handler: handleToStrategy
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
